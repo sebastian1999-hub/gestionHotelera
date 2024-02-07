@@ -13,7 +13,7 @@ const auth = require(__dirname + "/routes/auth");
 dotenv.config();
 
 /* Conexión a la BD */
-mongoose.connect('mongodb://127.0.0.1:27017/hotel');
+mongoose.connect('mongodb://localhost:27017/hotel');
 
 let app = express();
 nunjucks.configure('views', {
