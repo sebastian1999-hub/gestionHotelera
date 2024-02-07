@@ -1,5 +1,5 @@
 const express = require("express");
-
+const Usuario=require(__dirname + "/models/usuario");
 
 let router = express.Router();
 
@@ -9,7 +9,7 @@ router.post('/login', (req, res) => {
     let login = req.body.login;
     let password = req.body.password;
 
-    let existeUsuario = usuarios.filter(usuario => 
+    let existeUsuario = Usuario.filter(usuario => 
         usuario.usuario == login && usuario.password == password);
 
     if (existeUsuario.length > 0)
@@ -21,6 +21,10 @@ router.post('/login', (req, res) => {
                    {error: "Usuario o contraseña incorrectos"});
     }
 });
+router.get('/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/');
+});
 
 let autenticacion = (req, res, next) => {
     if (req.session && req.session.usuario)
@@ -28,7 +32,7 @@ let autenticacion = (req, res, next) => {
     else
         res.render('login');
 };
-router.get('/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/');
-});
+
+
+
+module.exports = router;
