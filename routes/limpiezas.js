@@ -11,7 +11,7 @@ const router = express.Router();
 
 
 /* Limpiezas de una habitación */
-router.get("/:id", async (req, res) => {
+router.get("/:id", (req, res) => {
   Habitacion.findById(req.params.id).then((habitacion) => {
     if (habitacion) {
       let numeroHabitacion = habitacion.numero;
