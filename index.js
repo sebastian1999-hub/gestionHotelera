@@ -51,7 +51,7 @@ app.use("/auth", auth);
 app.use('/node_modules', express.static('node_modules'));
 
 app.get('/', (req, res) => {
-    res.render('listado_habitaciones');
+    res.redirect('listado_habitaciones');
 })
 
 
