@@ -16,7 +16,7 @@ router.get("/:id", async (req, res) => {
     if (habitacion) {
       let numeroHabitacion = habitacion.numero;
       Limpieza.find({ idHabitacion: req.params.id }).sort({fechaHora: -1}).then((limpiezas) => {
-        res.render('listado_limpiezas', { limpiezas: limpiezas, habitacion: Habitacion})
+        res.render('listado_limpiezas', { limpiezas: limpiezas, habitacion: habitacion})
       })
     }
     else{
