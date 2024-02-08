@@ -29,18 +29,18 @@
                             <h2>
                                 <strong>Nueva:</strong>
                             </h2>
-                            {% if (session and session.usuario) %}
+                            {% if (sessiion and session.usuario) %}
                                 <form action="/habitaciones/{{ habitacion.id }}/incidencias" method="post" enctype="multipart/form-data">
-                                    {% if errores && errores.descripcion %}
-                                        <p>{{ errores.descripcion.message }}</p>
-                                    {% endif %}
-                                    <label for="descripcion">Descripción de la Incidencia:</label>
-                                    <textarea id="descripcion" name="descripcion" rows="4" required></textarea>
+                                    
+                                    <label for="descripcion">Descripción de la Incidencia:</label><br>
+                                    <textarea id="descripcion" name="descripcion" rows="4" required></textarea><br>
                                     <label for="imagen">Imagen de la Incidencia:</label>
                                     <input type="file" id="imagen" name="imagen">
+                                    <br>
                                         <button type="submit">Guardar</button>
                                     </form>
-                                {% endif %}
+                            {% endif %}
+                           
                                 <h2>
                                     <strong>Listado:</strong>
                                 </h2>
@@ -78,6 +78,6 @@
                                 <input type='hidden' name='_method' value='delete'>
                                     <button class="btn btn-danger">Borrar habitacion</button>
                                 </form>
-                        {{ else }}
+                        {% endif %}
                             </a>
                         {% endblock %}

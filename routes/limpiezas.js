@@ -3,26 +3,31 @@ const express = require("express");
 
 const Limpieza = require(__dirname + "/../models/limpieza.js");
 const Habitacion = require(__dirname + "/../models/habitacion.js");
+const autentication = require(__dirname + "/../utils/auth.js");
 
 const router = express.Router();
 
+router.get("/nueva/:id",autentication.autenticacion, (req, res) => {
+  const habitacionId = req.params.id;
+  res.render("limpiezas_nueva", { habitacionId: habitacionId });
+});
+
+
 /* Limpiezas de una habitación */
 router.get("/:id", async (req, res) => {
-  try {
-    const habitacion = await Habitacion.findById(req.params.id);
-    const limpiezas = await Limpieza.find({ idHabitacion: req.params.id }).sort(
-      { fechaHora: -1 }
-    );
-    if (limpiezas.length === 0) {
-      res.render("error", { error: "No hay limpiezas registradas" });
+  Habitacion.findById(req.params.id).then((habitacion) => {
+    if (habitacion) {
+      let numeroHabitacion = habitacion.numero;
+      Limpieza.find({ idHabitacion: req.params.id }).sort({fechaHora: -1}).then((limpiezas) => {
+        res.render('listado_limpiezas', { limpiezas: limpiezas, habitacion: Habitacion})
+      })
     }
-    res.render("listado_limpiezas", {
-      limpiezas: resultado,
-      habitacion: habitacion,
-    });
-  } catch (error) {
-    res.render("error", { error: "No hay limpiezas registradas" });
-  }
+    else{
+      res.render("error", { error: "Error buscando habitacion" });
+    }
+  }).catch((error) => {
+    res.render("error", { error: "Error encontrando habitacion" });
+  })
 });
 
 /* Estado de limpieza actual de una habitación */
@@ -51,32 +56,32 @@ router.get("/:id/estadolimpieza", async (req, res) => {
     res.status(400).send({ error: "Error obteniendo estado de limpieza" });
   }
 });
-router.get("/nueva/:id", (req, res) => {
-  const habitacionId = req.params.id;
-  res.render("limpiezas_nueva", { id: habitacionId });
-});
 
 /* Actualizar limpieza */
-router.post("/:id", async (req, res) => {
-  try {
+router.post("/:id",  (req, res) => {
+  
     let nuevaLimpieza = new Limpieza({
       idHabitacion: req.params.id,
       fechaHora: req.body.fecha,
-      observaciones: req.body.observaciones? req.body.observaciones : null,
-    });
+      observaciones: req.body.observaciones? req.body.observaciones : null,});
 
-    
-
-    const resultado = await nuevaLimpieza.save();
-    const habitacion = await Habitacion.findById(req.params.id);
-    habitacion= await Habitacion.findandupdate({_id:req.params.id},{$set:{ultimaLimpieza: req.body.fecha}});
-    const limpiezas = await Limpieza.find({ idHabitacion: req.params.id });
-      
-    
-    res.render("listado_limpiezas", { habitacion: habitacion, limpiezas: limpiezas });
-  } catch (error) {
-    res.render("error", { error: "Error creando la limpieza" });
-  }
+    nuevaLimpieza.save().then(() => {
+      Limpieza.find({ idHabitacion: req.params.id }).sort({fechaHora: -1}).then((limpiezas) => {
+        Habitacion.findByIdAndUpdate(req.params.id, {
+          $set: {
+            ultimaLimpieza: limpiezas[0].fechaHora
+          }
+          
+        },{new: true}).then(() => {
+          res.redirect('/limpiezas/' + req.params.id);
+        }).catch((error) => {
+          res.render("error", { error: "Error actualizando la habitación" });
+        })
+      }).catch((error) => {
+        res.render("error", { error: "Error actualizando la habitación" });
+      })
+    })
+  
 });
 
 module.exports = router;

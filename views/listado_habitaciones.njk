@@ -5,16 +5,16 @@
             <div class="row">
                 
                     {% for habitacion in habitaciones %}
-                       <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Habitación: {{habitacion.numero}}</h5>
-                        <p class="card-text">Ultima limpieza: {{habitacion.ultimaLimpieza}}</p>                        
-                        <a href="/habitaciones/{{habitacion.id}}" class="btn btn-success">Ver Ficha</a>
-                        <a class="btn btn-primary" href="/habitaciones/editar/{{habitacion.id}}">Editar</a>
-                    </div>
-                </div>
-            </div>
+                                <div class="col-md-4 mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Habitación: {{habitacion.numero}}</h5>
+                                    <p class="card-text">Ultima limpieza: {{habitacion.ultimaLimpieza}}</p>                        
+                                    <a href="/habitaciones/{{habitacion.id}}" class="btn btn-success">Ver Ficha</a>
+                                    <a class="btn btn-primary" href="/habitaciones/editar/{{habitacion.id}}">Editar</a>
+                                </div>
+                            </div>
+                        </div>
                     {% endfor %}
                     </div>
                 

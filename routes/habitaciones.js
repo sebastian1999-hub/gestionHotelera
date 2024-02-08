@@ -2,51 +2,44 @@
 const express = require("express");
 const Habitacion = require(__dirname + "/../models/habitacion.js");
 const Limpieza = require(__dirname + "/../models/limpieza.js");
-const multer = require('multer');
+const autentication = require(__dirname + "/../utils/auth.js");
+const upload = require(__dirname + "/../utils/uploads.js");
+
 
 let router = express.Router();
-let storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'public/uploads')
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + "_" + file.originalname)
-  }
-})
-let upload = multer({storage: storage});
 
+router.get("/nueva",autentication.autenticacion, (req, res) => {
+  res.render("habitaciones_nueva");
+});
 /* Listado de todas las habitaciones */
 router.get("/", async (req, res) => {
-  try {
-    const resultado = await Habitacion.find();
-    if (!resultado || resultado.length == 0)
-      res.render("error", { error: "Error listando Habitaciones" });
-    else res.render("listado_habitaciones", { habitaciones: resultado });
-  } catch (err) {
-    res
-      .status(500)
-      .send({ error: "No hay habitaciones registradas en la aplicación" });
-  }
+   Habitacion.find().then((resultado) => {
+     res.render("listado_habitaciones", { habitaciones: resultado });
+
+   }).catch((error) => {
+     res.render("error", { error: "Error listando habitaciones" });
+   })
 });
 
 /* Obtener detalles de una habitación concreta */
-router.get("/:id", async (req, res) => {
-  try {
-    const resultado = await Habitacion.findById(req.params.id);
-    if (!resultado) {
+router.get("/:id",  (req, res) => {
+  
+    Habitacion.findById(req.params.id).then((resultado) => {
+      if (!resultado) {
+        res.render("error", { error: "Error buscando habitacion" });
+      }
+      res.render("ficha_habitacion", { habitacion: resultado });
+    })
+    .catch((error) => {
       res.render("error", { error: "Error buscando habitacion" });
-    }
-    res.render("ficha_habitacion", { habitacion: resultado });
-  } catch (error) {
-    res.status(400).send({ error: "No existe el número de habitación" });
-  }
-});
-router.get("/nueva", (req, res) => {
-  res.render("habitacion_nueva");
+    })
+    
 });
 
+
+
 /* Insertar una habitación */
-router.post("/", upload.single("imagen"), (req, res) => {
+router.post("/", upload.uploadHabitacion.single("imagen"), (req, res) => {
   const nuevaHabitacion = new Habitacion({
     numero: req.body.numero,
     tipo: req.body.tipo,
@@ -124,62 +117,64 @@ router.put("/:id", async (req, res) => {
 
 /* Eliminar una habitación */
 router.delete("/:id", async (req, res) => {
-  try {
-    const resultado = await Habitacion.findByIdAndDelete(req.params.id);
-    if (!resultado) {
-      return res.render('error',{ error: "Error eliminando la habitación" });
+  Habitacion.findByIdAndDelete(req.params.id).then((resultado) => {
+    if (resultado) {
+      Limpieza.deleteMany({ idHabitacion: req.params.id }).then(() => {
+        res.redirect('/habitaciones');
+      })
     }
-    const habitaciones= await Habitacion.find();
-    res.render('listado_habitaciones',{ habitaciones: habitaciones});
-  } catch (error) {
-    res.render('error',{ error: "Error eliminando la habitación: " });
-  }
+    else{
+      res.render("error", { error: "Error eliminando la habitación" });
+    }
+
+  }).catch((error) => {
+    res.render("error", { error: "Error encontrando la habitación" });
+  })
 });
 
 /* Añadir una incidencia a una habitación */
-router.post("/:id/incidencias",upload.single("imagen"), async (req, res) => {
-  try {
-    const habitacion = await Habitacion.findById(req.params.id);
-    if (!habitacion) {
-      return res.render('error',{ error: "Error añadiendo la incidencia" });
+router.post("/:id/incidencias",upload.uploadHabitacion.single("imagen"), async (req, res) => {
+  const nuevaIncidencia = new Incidencia({
+    descripcion: req.body.descripcion,
+    imagen: req.file.filename ? req.file.filename : null,
+  })
+  Habitacion.findById(req.params.id).then((habitacion) => {
+    if (habitacion) {
+      habitacion.incidencias.push(nuevaIncidencia);
+      habitacion.save().then((resultado) => {
+        res.render("ficha_habitacion", { habitacion: resultado, incidencias: resultado.incidencias });
+      }).catch((error) => {
+        res.render("error", { error: "Error añadiendo la incidencia" });
+      })
     }
-
-    const incidencia = {
-      descripcion: req.body.descripcion,
-      fechaInicio: new Date(),
-      imagen: req.file.filename ? req.file.filename : null
-    };
-    habitacion.incidencias.push(incidencia);
-
-    const habitacionActualizada = await habitacion.save();
-    res.render("ficha_habitacion", { habitacion: habitacionActualizada, incidencias: habitacionActualizada.incidencias });
-  } catch (error) {
-    res.render("error", { error: "Error anadiendo la incidencia" });
-  }
+  }).catch((error) => {
+    res.render("error", { error: "Error encontrando la hhabitacion" });
+  })
 });
 
 /* Actualizar el estado de una incidencia de una habitación */
-router.put("/:idH/incidencias/:idI", async (req, res) => {
-  try {
-    const habitacion = await Habitacion.findById(req.params.idH);
-    if (!habitacion) {
-      return res.render('error',{ error: "Incidencia no encontrada" });
-    }
-
-    // Búsqueda de la incidencia dentro del array de incidencias de la habitación
-    const incidencia = habitacion.incidencias.id(req.params.idI);
-
-    if (!incidencia) {
-      return res.render('error',{ error: "Incidencia no encontrada" });
-    }
-
-    incidencia.fechaFin = new Date();
-    const habitacionActualizada = await habitacion.save();
-    res.render("ficha_habitacion", { habitacion: habitacionActualizada, incidencias: habitacionActualizada.incidencias });
-  } catch (error) {
-    res.status(400).send({ error: "Error al actualizar la incidencia" });
-  }
-});
+// router.put("/:idH/incidencias/:idI", autentication.autentication, (req, res) => {
+//   Habitacion.findById(req.params.idH).then((habitacion) => {
+//     if (habitacion) {
+//       habitacion.incidencias.forEach((incidencia) => {
+//         if (incidencia._id == req.params.idI) {
+//           incidencia.fechaFin = new Date();
+//           incidencia.save().then((resultado) => {
+//             res.redirect(`/habitaciones/${req.params.idH}`);
+//           }).catch((error) => {
+//             res.render("error", { error: "Error actualizando la incidencia" });
+//           })
+          
+//         }
+//       })
+//     }
+//     else{
+//       res.render("error", { error: "Error encontrando la incidencia" });
+//     }
+//   }).catch((error) => {
+//     res.render("error", { error: "Error encontrando la habitación" });
+//   })
+// });
 
 /* Actualizar última limpieza */
 router.put("/:id/ultimalimpieza", async (req, res) => {

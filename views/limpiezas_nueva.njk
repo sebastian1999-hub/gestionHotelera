@@ -7,14 +7,14 @@
         
         <label for="fecha">Fecha de limpieza:</label>
         <input type="date" id="fecha" name="fecha" value="{{ Date.now() }}" required>
-            {% if errores && errores.observaciones %}
+            {% if errores  %}
                 <p>{{ errores.observaciones.message }}</p>
             {% endif %}
             <label for="observaciones">Descripción de la habitación:</label>
             <textarea id="observaciones" name="observaciones" rows="4"></textarea>
                     <button type="submit">Guardar</button>
                 </form>
-            {% endblock %}
+{% endblock %}
             <script>
                 function obtenerFechaActual() {
                     const hoy = new Date();
