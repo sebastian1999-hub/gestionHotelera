@@ -3,7 +3,8 @@ const express = require("express");
 const Habitacion = require(__dirname + "/../models/habitacion.js");
 const Limpieza = require(__dirname + "/../models/limpieza.js");
 const autentication = require(__dirname + "/../utils/auth.js");
-const upload = require(__dirname + "/../utils/uploads.js");
+const uploadHabitacion = require(__dirname + "/../utils/uploads.js");
+const uploadIncidencia = require(__dirname + "/../utils/uploads.js");
 
 
 let router = express.Router();
@@ -39,7 +40,7 @@ router.get("/:id",  (req, res) => {
 
 
 /* Insertar una habitación */
-router.post("/", upload.uploadHabitacion.single("imagen"), (req, res) => {
+router.post("/", uploadHabitacion.uploadHabitacion.single("imagen"), (req, res) => {
   const nuevaHabitacion = new Habitacion({
     numero: req.body.numero,
     tipo: req.body.tipo,
@@ -133,7 +134,7 @@ router.delete("/:id", async (req, res) => {
 });
 
 /* Añadir una incidencia a una habitación */
-router.post("/:id/incidencias",upload.uploadHabitacion.single("imagen"), async (req, res) => {
+router.post("/:id/incidencias",uploadIncidencia.uploadIncidencia.single("imagen"), (req, res) => {
   const nuevaIncidencia = new Incidencia({
     descripcion: req.body.descripcion,
     imagen: req.file.filename ? req.file.filename : null,
