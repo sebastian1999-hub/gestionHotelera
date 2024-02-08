@@ -44,8 +44,8 @@ router.post("/", upload.uploadHabitacion.single("imagen"), (req, res) => {
     numero: req.body.numero,
     tipo: req.body.tipo,
     descripcion: req.body.descripcion,
-    precio: req.body.precio,
     ultimaLimpieza: new Date(),
+    precio: req.body.precio,
     imagen: req.file.filename ? req.file.filename : null,
   });
 

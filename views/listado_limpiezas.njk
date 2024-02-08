@@ -3,12 +3,14 @@
     {% block contenido %}    
             <h1>Listado de Limpiezas de la habitacion {{habitacion.numero}}</h1>
             
-                <ul>
+                
                     {% for limpieza in limpiezas %}
-                        <li><strong>Fecha:</strong> {{ limpieza.fechaHora }}</li>
-                        <li><strong>Observaciones:</strong> {{ limpieza.observaciones }}</li>
+                    <div class='card p-3'>
+                        <p class="card-text"><strong>Fecha:</strong> {{ limpieza.fechaHora }}</p>
+                        <p class="card-text"><strong>Observaciones:</strong> {{ limpieza.observaciones }}</p>
+                    </div>
                     {% endfor %}
-                </ul>
+                
                 {% if (session and session.usuario) %}
                 <a href="/limpiezas/nueva/{{habitacion.id}}" class="btn btn-success">Nueva limpieza</a>
                 {% endif %}
