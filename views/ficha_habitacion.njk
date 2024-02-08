@@ -26,10 +26,11 @@
                             <h1>
                                 <strong>Incidencias:</strong>
                             </h1>
-                            <h2>
-                                <strong>Nueva:</strong>
-                            </h2>
-                            {% if (sessiion and session.usuario) %}
+                            
+                            {% if (session and session.usuario) %}
+                                <h2>
+                                    <strong>Nueva:</strong>
+                                </h2>
                                 <form action="/habitaciones/{{ habitacion.id }}/incidencias" method="post" enctype="multipart/form-data">
                                     
                                     <label for="descripcion">Descripción de la Incidencia:</label><br>
