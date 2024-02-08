@@ -41,7 +41,7 @@ router.get("/:id", async (req, res) => {
     res.status(400).send({ error: "No existe el número de habitación" });
   }
 });
-router.get("/nuevo", (req, res) => {
+router.get("/nueva", (req, res) => {
   res.render("habitacion_nueva");
 });
 

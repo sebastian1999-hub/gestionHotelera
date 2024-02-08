@@ -1,5 +1,5 @@
 const express = require("express");
-const Usuario=require(__dirname + "/models/usuario");
+const Usuario=require(__dirname + "/../models/usuario");
 
 let router = express.Router();
 
