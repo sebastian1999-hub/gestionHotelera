@@ -9,6 +9,7 @@ const router = express.Router();
 
 router.get("/nueva/:id",autentication.autenticacion, (req, res) => {
   const habitacionId = req.params.id;
+  console.log(habitacionId);
   res.render("limpiezas_nueva", { id: habitacionId });
 });
 
