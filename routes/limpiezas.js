@@ -7,11 +7,7 @@ const autentication = require(__dirname + "/../utils/auth.js");
 
 const router = express.Router();
 
-router.get("/nueva/:id",autentication.autenticacion, (req, res) => {
-  const habitacionId = req.params.id;
-  console.log(habitacionId);
-  res.render("limpiezas_nueva", { id: habitacionId });
-});
+
 
 
 /* Limpiezas de una habitación */
@@ -29,6 +25,11 @@ router.get("/:id", async (req, res) => {
   }).catch((error) => {
     res.render("error", { error: "Error encontrando habitacion" });
   })
+});
+router.get("/nueva/:id",autentication.autenticacion, (req, res) => {
+  const habitacionId = req.params.id;
+  console.log(habitacionId);
+  res.render("limpiezas_nueva", { id: habitacionId });
 });
 
 /* Estado de limpieza actual de una habitación */
